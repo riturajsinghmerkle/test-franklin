@@ -1,4 +1,5 @@
-import { readBlockConfig, decorateIcons } from '../../scripts/lib-franklin.js';
+import { decorateIcons, getMetadata } from '../../scripts/lib-franklin.js';
+import { decorateLangSwitcher } from '../../scripts/scripts.js';
 
 // media query match that indicates mobile/tablet width
 const MQ = window.matchMedia('(min-width: 900px)');
@@ -90,11 +91,10 @@ function toggleMenu(nav, navSections, forceExpanded = null) {
  * @param {Element} block The header block element
  */
 export default async function decorate(block) {
-  const config = readBlockConfig(block);
   block.textContent = '';
 
   // fetch nav content
-  const navPath = config.nav || '/nav';
+  const navPath = getMetadata('nav').trim() || '/nav';
   const resp = await fetch(`${navPath}.plain.html`);
 
   if (resp.ok) {
@@ -137,6 +137,9 @@ export default async function decorate(block) {
     // prevent mobile nav behavior on window resize
     toggleMenu(nav, navSections, MQ.matches);
     MQ.addEventListener('change', () => toggleMenu(nav, navSections, MQ.matches));
+
+    // language switcher
+    decorateLangSwitcher(nav.querySelector('.nav-tools ul'));
 
     decorateIcons(nav);
     block.append(nav);
